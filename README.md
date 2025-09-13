@@ -54,38 +54,59 @@ Gemini API 代理, 使用边缘函数把 Gemini API 免费中转到国内。还�
 
 #### **5. 配置您的 AI 客户端 (以 CCR 为例)**
 
-等待重新部署成功后，您的服务就完全准备好了。
+等待 Vercel 重新部署成功后，您的专属安全代理服务就已经完全准备就绪了。
 
-```json
-{
-  "PROXY_URL": "代理端口",
-  "LOG": true,
-  "API_TIMEOUT_MS": 600000,
-  "NON_INTERACTIVE_MODE": false,
-  "Providers": [
+这个服务是一个**通用**的 Gemini API 代理，您可以将它接入任何支持自定义 Gemini API 端点的 AI 客户端。配置的核心原则是：
+
+*   **API 地址/端点 (Endpoint / API Base URL):** 使用您的 Vercel 部署域名。
+*   **API 密钥 (API Key):** 使用您在 Vercel 环境变量中设置的 `ACCESS_KEY` 作为“访问密码”。
+
+#### **配置示例 (以 Claude Code Router 为例)**
+
+1.  在您的 Vercel 项目主页的 **Domains** 区域，找到并复制您的主域名 (例如 `gemini-balance-lite-wsqlns-projects.vercel.app`)。
+
+2.  打开您的 Claude Code Router `config.json` 文件，并将其修改为以下格式，确保**每一个键名的大小写和空格都完全一致**：
+
+    ```json
     {
-      "name": "gemini",
-      "api_base_url": "https://<您的Vercel域名>/v1beta/models/",
-      "api_key": "<您在ACCESS_KEY中设置的专属密码>",
-      "models": ["gemini-2.5-flash", "gemini-2.5-pro"],
-      "transformer": {
-        "use": ["gemini"]
+      "PROXY URL": "http://127.0.0.1:<您的代理端口>",
+      "LOG": true,
+      "API TIMEOUT MS": 600000,
+      "NON INTERACTIVE MODE": false,
+      "Providers": [
+        {
+          "name": "gemini",
+          "api base url": "https://<您的Vercel主域名>/v1beta/models/",
+          "api key": "<您在ACCESS_KEY中设置的专属密码>",
+          "models": [
+            "gemini-2.5-flash",
+            "gemini-2.5-pro"
+          ],
+          "transformer": {
+            "use": ["gemini"]
+          }
+        }
+      ],
+      "Router": {
+        "default": "gemini,gemini-2.5-pro",
+        "background": "gemini,gemini-2.5-flash",
+        "think": "gemini,gemini-2.5-pro",
+        "longContext": "gemini,gemini-2.5-pro",
+        "longContextThreshold": 60000,
+        "webSearch": "gemini,gemini-2.5-flash"
       }
     }
-  ],
-  "Router": {
-    "default": "gemini,gemini-2.5-pro",
-    "background": "gemini,gemini-2.5-flash",
-    "think": "gemini,gemini-2.5-pro",
-    "longContext": "gemini,gemini-2.5-pro",
-    "longContextThreshold": 60000,
-    "webSearch": "gemini,gemini-2.5-flash"
-  }
-}
-```
+    ```
+    *   将 `<您的代理端口>` 替换为您 CCR 本地的代理端口 (例如 `10808`)。
+    *   将 `<您的Vercel主域名>` 替换为您 Vercel 项目的真实主域名。
+    *   将 `<您在ACCESS_KEY中设置的专属密码>` 替换为您在 Vercel 中为 `ACCESS_KEY` 设置的密码。
 
-*   将 `<您的Vercel域名>` 替换为您 Vercel 项目的真实主域名。
-*   将 `<您在ACCESS_KEY中设置的专属密码>` 替换为您刚刚设置的密码。
+#### **其他客户端的配置思路**
+
+对于其他客户端（如 LobeChat, One API, NextChat 等），请在其设置中找到“自定义 Gemini 模型”或“自定义 API 端点”的选项，然后填入：
+
+*   **API Base URL / Endpoint:** `https://<您的Vercel主域名>`
+*   **API Key:** `<您在ACCESS_KEY中设置的专属密码>`
 
 ---
 
