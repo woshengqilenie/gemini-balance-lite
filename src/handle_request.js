@@ -30,6 +30,7 @@ export async function handleRequest(request) {
   try {
     const clientProvidedKey = request.headers.get('x-goog-api-key');
     const serverAccessKey = request.headers.get('x-access-key-server');
+    console.log("--- DIAGNOSTIC LOG --- Incoming request headers:", JSON.stringify(Object.fromEntries(request.headers.entries()), null, 2));
 
     if (!serverAccessKey) {
         console.error('Server configuration error: ACCESS_KEY is not set in Vercel environment variables.');
