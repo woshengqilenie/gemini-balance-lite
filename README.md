@@ -58,19 +58,29 @@ Gemini API 代理, 使用边缘函数把 Gemini API 免费中转到国内。还�
 
 ```json
 {
+  "PROXY_URL": "代理端口",
+  "LOG": true,
+  "API_TIMEOUT_MS": 600000,
+  "NON_INTERACTIVE_MODE": false,
   "Providers": [
     {
       "name": "gemini",
-      "api base url": "https://<您的Vercel域名>/v1beta/models/",
-      "api key": "<您在ACCESS_KEY中设置的专属密码>",
-      "models": [
-        "gemini-1.5-flash-latest",
-        "gemini-1.5-pro-latest"
-      ],
-      // ...
+      "api_base_url": "https://<您的Vercel域名>/v1beta/models/",
+      "api_key": "<您在ACCESS_KEY中设置的专属密码>",
+      "models": ["gemini-2.5-flash", "gemini-2.5-pro"],
+      "transformer": {
+        "use": ["gemini"]
+      }
     }
   ],
-  // ...
+  "Router": {
+    "default": "gemini,gemini-2.5-pro",
+    "background": "gemini,gemini-2.5-flash",
+    "think": "gemini,gemini-2.5-pro",
+    "longContext": "gemini,gemini-2.5-pro",
+    "longContextThreshold": 60000,
+    "webSearch": "gemini,gemini-2.5-flash"
+  }
 }
 ```
 
