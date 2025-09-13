@@ -1,9 +1,13 @@
-  import { handleRequest } from "./handle_request.js";
+// src/index.js
 
-  export default {
-    async fetch (req, env, context) {
-      const url = new URL(req.url);
-      console.log('Request URL:', req.url); 
-      return handleRequest(req);
-    }
-  }
+import { handleRequest } from "./handle_request.js";
+
+// 在这里声明 Vercel 的运行时配置
+export const config = {
+  runtime: 'edge',
+};
+
+// 导出 handleRequest 作为默认处理函数
+export default async function (req, context) {
+  return handleRequest(req, context);
+}
