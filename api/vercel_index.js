@@ -1,4 +1,4 @@
-// /api/vercel_index.js (All-in-One Final Version)
+// /api/vercel_index.js (Final Direct-Access Version)
 
 export const config = {
   runtime: 'edge',
@@ -10,21 +10,19 @@ export default async function handleRequest(request) {
   const search = url.search;
 
   if (pathname === '/' || pathname === '/index.html') {
-    return new Response('Proxy is Running! More Details: https://github.com/tech-shrimp/gemini-balance-lite', {
-      status: 200,
-      headers: { 'Content-Type': 'text/html' }
-    });
+    return new Response('Proxy is Running!');
   }
 
   const targetUrl = `https://generativelanguage.googleapis.com${pathname}${search}`;
 
   try {
     // --- Security Checkpoint ---
+    // 直接从 Vercel 环境读取 ACCESS_KEY
+    const serverAccessKey = process.env.ACCESS_KEY;
     const clientProvidedKey = request.headers.get('x-goog-api-key');
-    const serverAccessKey = request.headers.get('x-access-key-server');
 
     if (!serverAccessKey) {
-        console.error('Server configuration error: ACCESS_KEY is not set.');
+        console.error('Server configuration error: ACCESS_KEY is not set in Vercel environment variables.');
         return new Response(JSON.stringify({ error: { message: 'Server configuration error: Access Key is not set.' } }), { status: 500, headers: {'Content-Type': 'application/json'} });
     }
     
@@ -36,9 +34,10 @@ export default async function handleRequest(request) {
     console.log('Authorization successful.');
 
     // --- Load Balancing Logic ---
-    const serverKeyPoolHeader = request.headers.get('x-gemini-keys-pool-server');
+    // 直接从 Vercel 环境读取 GEMINI_API_KEYS
+    const serverKeyPoolHeader = process.env.GEMINI_API_KEYS;
     if (!serverKeyPoolHeader) {
-        console.error('Server configuration error: GEMINI_API_KEYS is not set.');
+        console.error('Server configuration error: GEMINI_API_KEYS is not set in Vercel environment variables.');
         return new Response(JSON.stringify({ error: { message: 'Server configuration error: Key pool is not set.' } }), { status: 500, headers: {'Content-Type': 'application/json'} });
     }
 
