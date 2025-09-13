@@ -1,9 +1,6 @@
-// src/handle_request.js (Final Fix)
+// src/handle_request.js (Final Purified Version)
 
-// 我们不再需要 verify_keys.js, 所以可以移除
-// import { handleVerification } from './verify_keys.js';
-// 我们移除了导致崩溃的 openai.mjs
-// import openai from './openai.mjs';
+// 我们已经物理删除了 openai.mjs，所以这里不再需要任何 import
 
 export async function handleRequest(request) {
 
@@ -18,26 +15,21 @@ export async function handleRequest(request) {
     });
   }
 
-  // --- 我们移除了所有与 verify 和 openai 相关的路由 ---
-
   const targetUrl = `https://generativelanguage.googleapis.com${pathname}${search}`;
 
   try {
-    // 我们的诊断日志可以暂时移除或注释掉
-    // console.log("--- DIAGNOSTIC LOG --- Incoming request headers:", JSON.stringify(Object.fromEntries(request.headers.entries()), null, 2));
-
     // --- 安全检查站 ---
     const clientProvidedKey = request.headers.get('x-goog-api-key');
     const serverAccessKey = request.headers.get('x-access-key-server');
 
     if (!serverAccessKey) {
-        console.error('Server configuration error: ACCESS_KEY is not set in Vercel environment variables.');
-        return new Response(JSON.stringify({ error: { message: 'Server configuration error: Access Key is not set.' } }), { status: 500, headers: { 'Content-Type': 'application/json' } });
+        console.error('Server configuration error: ACCESS_KEY is not set.');
+        return new Response(JSON.stringify({ error: { message: 'Server configuration error: Access Key is not set.' } }), { status: 500 });
     }
     
     if (!clientProvidedKey || clientProvidedKey !== serverAccessKey) {
-        console.log('Authorization failed: Invalid access key provided by client.');
-        return new Response(JSON.stringify({ error: { message: 'Unauthorized: Invalid API Key provided.' } }), { status: 401, headers: { 'Content-Type': 'application/json' } });
+        console.log('Authorization failed: Invalid access key provided.');
+        return new Response(JSON.stringify({ error: { message: 'Unauthorized: Invalid API Key provided.' } }), { status: 401 });
     }
     
     console.log('Authorization successful.');
@@ -45,21 +37,20 @@ export async function handleRequest(request) {
     // --- 负载均衡逻辑 ---
     const serverKeyPoolHeader = request.headers.get('x-gemini-keys-pool-server');
     if (!serverKeyPoolHeader) {
-        console.error('Server configuration error: GEMINI_API_KEYS is not set in Vercel environment variables.');
-        return new Response(JSON.stringify({ error: { message: 'Server configuration error: Key pool is not set.' } }), { status: 500, headers: { 'Content-Type': 'application/json' } });
+        console.error('Server configuration error: GEMINI_API_KEYS is not set.');
+        return new Response(JSON.stringify({ error: { message: 'Server configuration error: Key pool is not set.' } }), { status: 500 });
     }
 
     const apiKeys = serverKeyPoolHeader.split(',').map(k => k.trim()).filter(k => k);
 
     if (apiKeys.length === 0) {
-        console.error('Server configuration error: GEMINI_API_KEYS environment variable is empty or invalid.');
-        return new Response(JSON.stringify({ error: { message: 'Server configuration error: Key pool is empty.' } }), { status: 500, headers: { 'Content-Type': 'application/json' } });
+        console.error('Server configuration error: GEMINI_API_KEYS is empty.');
+        return new Response(JSON.stringify({ error: { message: 'Server configuration error: Key pool is empty.' } }), { status: 500 });
     }
 
     const selectedKey = apiKeys[Math.floor(Math.random() * apiKeys.length)];
-    console.log(`A key has been selected from the server pool for the request.`);
+    console.log(`A key has been selected from the server pool.`);
 
-    // --- 准备向上游发送的请求 ---
     const headers = new Headers();
     headers.set('x-goog-api-key', selectedKey);
 
@@ -87,9 +78,6 @@ export async function handleRequest(request) {
 
   } catch (error) {
    console.error('Failed to fetch:', error);
-   return new Response('Internal Server Error\n' + error?.stack, {
-    status: 500,
-    headers: { 'Content-Type': 'text/plain' }
-   });
+   return new Response('Internal Server Error\n' + error?.stack, { status: 500 });
   }
 };
