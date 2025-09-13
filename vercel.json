@@ -1,19 +1,4 @@
 {
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "x-access-key-server",
-          "value": "$ACCESS_KEY"
-        },
-        {
-          "key": "x-gemini-keys-pool-server",
-          "value": "$GEMINI_API_KEYS"
-        }
-      ]
-    }
-  ],
   "rewrites": [
     {
       "source": "/(.*)",
