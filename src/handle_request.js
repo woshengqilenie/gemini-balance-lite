@@ -1,3 +1,5 @@
+// src/handle_request.js
+
 import { handleVerification } from './verify_keys.js';
 import openai from './openai.mjs';
 
@@ -28,9 +30,9 @@ export async function handleRequest(request) {
   const targetUrl = `https://generativelanguage.googleapis.com${pathname}${search}`;
 
   try {
+    // --- 安全检查站 ---
     const clientProvidedKey = request.headers.get('x-goog-api-key');
     const serverAccessKey = request.headers.get('x-access-key-server');
-    console.log("--- DIAGNOSTIC LOG --- Incoming request headers:", JSON.stringify(Object.fromEntries(request.headers.entries()), null, 2));
 
     if (!serverAccessKey) {
         console.error('Server configuration error: ACCESS_KEY is not set in Vercel environment variables.');
@@ -44,6 +46,7 @@ export async function handleRequest(request) {
     
     console.log('Authorization successful.');
 
+    // --- 负载均衡逻辑 ---
     const serverKeyPoolHeader = request.headers.get('x-gemini-keys-pool-server');
     if (!serverKeyPoolHeader) {
         console.error('Server configuration error: GEMINI_API_KEYS is not set in Vercel environment variables.');
@@ -60,6 +63,7 @@ export async function handleRequest(request) {
     const selectedKey = apiKeys[Math.floor(Math.random() * apiKeys.length)];
     console.log(`A key has been selected from the server pool for the request.`);
 
+    // --- 准备向上游发送的请求 ---
     const headers = new Headers();
     headers.set('x-goog-api-key', selectedKey);
 
