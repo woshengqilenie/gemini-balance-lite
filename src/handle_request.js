@@ -1,7 +1,9 @@
-// src/handle_request.js
+// src/handle_request.js (Final Fix)
 
-import { handleVerification } from './verify_keys.js';
-import openai from './openai.mjs';
+// 我们不再需要 verify_keys.js, 所以可以移除
+// import { handleVerification } from './verify_keys.js';
+// 我们移除了导致崩溃的 openai.mjs
+// import openai from './openai.mjs';
 
 export async function handleRequest(request) {
 
@@ -16,20 +18,14 @@ export async function handleRequest(request) {
     });
   }
 
-  if (pathname === '/verify' && request.method === 'POST') {
-    return new Response(JSON.stringify({ message: "Verification endpoint is disabled in this mode." }), {
-        status: 403,
-        headers: { 'Content-Type': 'application/json' },
-      });
-  }
-
-  if (url.pathname.endsWith("/chat/completions") || url.pathname.endsWith("/completions") || url.pathname.endsWith("/embeddings") || url.pathname.endsWith("/models")) {
-    return openai.fetch(request);
-  }
+  // --- 我们移除了所有与 verify 和 openai 相关的路由 ---
 
   const targetUrl = `https://generativelanguage.googleapis.com${pathname}${search}`;
 
   try {
+    // 我们的诊断日志可以暂时移除或注释掉
+    // console.log("--- DIAGNOSTIC LOG --- Incoming request headers:", JSON.stringify(Object.fromEntries(request.headers.entries()), null, 2));
+
     // --- 安全检查站 ---
     const clientProvidedKey = request.headers.get('x-goog-api-key');
     const serverAccessKey = request.headers.get('x-access-key-server');
