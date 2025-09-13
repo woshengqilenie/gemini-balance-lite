@@ -1,7 +1,7 @@
 {
   "headers": [
     {
-      "source": "/api/(.*)",
+      "source": "/(.*)",
       "headers": [
         {
           "key": "x-access-key-server",
@@ -14,9 +14,10 @@
       ]
     }
   ],
-  "functions": {
-    "api/vercel_index.js": {
-      "runtime": "edge"
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/api/vercel_index.js"
     }
-  }
+  ]
 }
