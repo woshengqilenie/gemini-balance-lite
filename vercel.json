@@ -1,5 +1,20 @@
 {
-  "routes": [
+  "rewrites": [
     { "src": "/(.*)", "dest": "/api/vercel_index.js" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "x-access-key-server",
+          "value": "$ACCESS_KEY"
+        },
+        {
+          "key": "x-gemini-keys-pool-server",
+          "value": "$GEMINI_API_KEYS"
+        }
+      ]
+    }
   ]
 }
