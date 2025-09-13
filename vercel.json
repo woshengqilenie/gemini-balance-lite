@@ -1,6 +1,9 @@
 {
   "rewrites": [
-    { "src": "/(.*)", "dest": "/api/vercel_index.js" }
+    { 
+      "source": "/(.*)", 
+      "destination": "/api/vercel_index.js" 
+    }
   ],
   "headers": [
     {
